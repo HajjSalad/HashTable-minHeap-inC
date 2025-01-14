@@ -30,8 +30,8 @@ void init_hash_table() {
     hashTable ht;                                           // Declare a hash Table
 
     for (int i=0; i < INITIAL_CAPACITY; i++) {
-        ht.entries[i] = (word*)malloc(sizeof(word));        // Allocate memory for each 'word' struct
-        if (ht.entries[i] == NULL) {                        // Allocation was unsuccessful
+        hash_table[i] = (word*)malloc(sizeof(word));        // Allocate memory for each 'word' struct
+        if (hash_table[i] == NULL) {                        // Allocation was unsuccessful
             fprintf(stderr, "Mem allocation failed for hash_table[%d]. Marking as NULL. \n", i);
             hash_table[i] = NULL;                           // Explicitly set failed slots to NULL
             table_failure_count++;
