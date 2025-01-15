@@ -9,26 +9,33 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stddef.h>
 
-#define TABLE_SIZE  10
-#define MAX_WORD    256
+#define INITIAL_CAPACITY        10
+#define MAX_WORD                256
 
-//*****************************************************************************
+//*****************************************************************************************
 
-typedef struct {                    // Word structure
+typedef struct {                    // Word structure - hash table entry
     char data[MAX_WORD];
-    int freq;
+    size_t freq;
 } word;
 
-word *hash_table[TABLE_SIZE];       // Declare the hash Table
+typedef struct {                    // hashTable structure 
+    word* entries;                  // a pointer to the first element 
+    size_t capacity;                // total number of slots in the hash table
+    size_t length;                  // total number of actual items in the hash table
+} hashTable;  
 
-//*****************************************************************************
+//*****************************************************************************************
 
 // Function declaration for hash table 
 unsigned long hash(unsigned char *str);
-void init_hash_table();
-bool hash_table_insert(word* w);
-word* hash_table_lookup(char* lookWord);
+hashTable* init_hash_table();
+void free_hash_table(hashTable* table);
+void free_hash_table(hashTable* table);
+bool hash_table_insert(hashTable* table, word* w);
+void* hash_table_lookup(hashTable* table, char* lookWord);
 
 #endif
-//*****************************************************************************
+//*****************************************************************************************
