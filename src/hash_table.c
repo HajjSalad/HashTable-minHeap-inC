@@ -1,109 +1,113 @@
-//*****************************************************************************
+//******************************************************************************************************
 
 //  hash_table.c  -   Hash Table implementation
 
-//*****************************************************************************
+//******************************************************************************************************
 
 #include "hash_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stddef.h>
 
-//*****************************************************************************
+//******************************************************************************************************
 
 // djb2 by Dan Bernstein
 unsigned long hash(unsigned char *str) {
-    unsigned long hash = 5381;                  // Initial hash value - starting value
-    int c;
+    unsigned long hash = 5381;                   // Initial hash value - starting value
+    size_t c;
 
-    while ((c = *str++)) {                        // Iterate through each character in the string
-        hash = ((hash << 5) + hash) + c;        // hash * 33 + c 
+    while ((c = *str++)) {                       // Iterate through each character in the string
+        hash = ((hash << 5) + hash) + c;         // hash * 33 + c 
     }
     return hash;
 }
 
-// Initialize the hash table
-void init_hash_table() {
-    int table_failure_count = 0;
+// Initialize a new hash table and return a pointer to it
+hashTable* init_hash_table(void) {
 
-    hashTable ht;                                           // Declare a hash Table
-
-    for (int i=0; i < INITIAL_CAPACITY; i++) {
-        ht.entries[i] = (word*)malloc(sizeof(word));        // Allocate memory for each 'word' struct
-        if (ht.entries[i] == NULL) {                        // Allocation was unsuccessful
-            fprintf(stderr, "Mem allocation failed for hash_table[%d]. Marking as NULL. \n", i);
-            hash_table[i] = NULL;                           // Explicitly set failed slots to NULL
-            table_failure_count++;
-            continue;                                       // Skip initialization for this entry
-        }
-        // Allocation was successful
-        hash_table[i]->data[0] = '\0';                     // Initialize with an empty string
-        hash_table[i]->freq = 0;
+    // Allocate memory for the hash table
+    hashTable* table = malloc(sizeof(hashTable));                // table - pointer of type hashTable
+    if (table == NULL) {
+        fprintf(stderr, "Memory alloc failed for hash table\n");     
+        return NULL;
     }
-    if (table_failure_count > 0) {
-        fprintf(stderr, "Initialization completed with %d failed entries.\n", table_failure_count);
+
+    // Allocate memory for the entries array
+    table->entries = calloc(INITIAL_CAPACITY, sizeof(word));
+    if (table->entries == NULL) {
+        fprintf(stderr, "Memory alloc failed for entries\n");
+        free(table);   // Free the allocated memory for table
+        return NULL;
+    }
+
+    table->capacity = INITIAL_CAPACITY;
+    table->length = 0;
+
+    for (size_t i=0; i<INITIAL_CAPACITY; i++) {
+        table->entries[i].data[0] = '\0';
+        table->entries[i].freq = 0;
+    }
+
+    return table;                                // return the pointer to the initialized hash table
+}
+
+// Free the hash table and its entries
+void free_hash_table(hashTable* table) {
+    if (table != NULL) {
+        free(table->entries);             // Free the array of entries
+        free(table);                      // Free the hash table itself
     }
 }
 
+/*
 // Expand hash table if more than filled
 bool hash_table_expand() {
     in
-}
+} */
 
 // Return true if successful, false otherwise
-bool hash_table_insert(word* w, int *pInserted_word_count) {
-    if (w == NULL) return false;                            // There's nothing to insert
+bool hash_table_insert(hashTable* table, word* w) {
+    if (table == NULL || w == NULL) return false;                // Validate the input params
     
-    int index = hash((unsigned char *)w->data) % TABLE_SIZE;             // Get the index for the word
+    // Get the index for the word
+    size_t index = hash((unsigned char *)w->data) % table->capacity;     
 
     // Handling collision and Check if already stored
-    for (int i=0; i < TABLE_SIZE; i++) {
-        int try_index = (i + index) % TABLE_SIZE;
-        
-        // Check table size and expand
-        if (*pInserted_word_count > (TABLE_SIZE/2)) {
-            if (hash_table_expand()) {
-                printf("Table expandsion successful.\n");
-            } else {
-                printf("Table expansion unsuccessful.\n");
-                break;
-            }
-        }
+    for (size_t i=0; i < table->capacity; i++) {
+        size_t try_index = (i + index) % table->capacity;
 
-        // != NULL - Available for use or Can be used
-        if (hash_table[try_index] != NULL) {                // Not set to NULL during initialization 
-            // If slot is empty, insert the word
-            if (hash_table[try_index]->data[0] == '\0') {
-                strcpy(hash_table[try_index]->data, w->data);
-                hash_table[try_index]->freq = 1;
-                (*pInserted_word_count)++;                   // Increment the count
-                return true;
-            }
-            if (strncmp(hash_table[try_index]->data, w->data, MAX_WORD) == 0) {
-                // Word already exists
-                hash_table[try_index]->freq += 1;          // increment the frequency
-                return true;
-            }
+        // If slot is empty, insert the word
+        if (table->entries[try_index].data[0] == '\0') {
+            strcpy(table->entries[try_index].data, w->data);
+            table->entries[try_index].freq = 1;
+            table->length++;                              // Increment the lenght of hash table
+            return true;
+        }
+        // If slot contain same word, update frequency
+        if (strncmp(table->entries[try_index].data, w->data, MAX_WORD) == 0) {
+            table->entries[try_index].freq += 1;          // increment the frequency
+            return true;
         }
     }
     // If no suitable slot found, return false
     return false;
 }
 
-word* hash_table_lookup(char* lookWord) {
-    if (lookWord == NULL || lookWord[0] == '\0') return NULL;           // Invalid input
+void* hash_table_lookup(hashTable* table, char* lookWord) {
+    if (table == NULL || lookWord == NULL || lookWord[0] == '\0') return NULL;     
 
-    int index = hash((unsigned char *)lookWord) % TABLE_SIZE;
+    size_t index = hash((unsigned char *)lookWord) % table->capacity;
 
     // Search for the word
-    for (int i=0; i < TABLE_SIZE; i++) {
-        int try_index = (i + index) % TABLE_SIZE;
+    for (size_t i=0; i < table->capacity; i++) {
+        size_t try_index = (i + index) % table->capacity;
         
         // Check slot is occupied and word matches
-        if (hash_table[try_index] != NULL) {        
-            if(strncmp(hash_table[try_index]->data, lookWord, MAX_WORD) == 0) {
-                return hash_table[try_index];               // Found the word
+        if (table->entries[try_index].data[0] != '\0') {        
+            if(strncmp(table->entries[try_index].data, lookWord, MAX_WORD) == 0) {
+                return (void*)&table->entries[try_index];               // Found the word
             }
         }
     }

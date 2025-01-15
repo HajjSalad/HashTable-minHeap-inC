@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define INITIAL_CAPACITY        10
 #define MAX_WORD                256
@@ -17,7 +18,7 @@
 
 typedef struct {                    // Word structure - hash table entry
     char data[MAX_WORD];
-    int freq;
+    size_t freq;
 } word;
 
 typedef struct {                    // hashTable structure 
@@ -30,9 +31,11 @@ typedef struct {                    // hashTable structure
 
 // Function declaration for hash table 
 unsigned long hash(unsigned char *str);
-void init_hash_table();
-bool hash_table_insert(word* w);
-word* hash_table_lookup(char* lookWord);
+hashTable* init_hash_table();
+void free_hash_table(hashTable* table);
+void free_hash_table(hashTable* table);
+bool hash_table_insert(hashTable* table, word* w);
+void* hash_table_lookup(hashTable* table, char* lookWord);
 
 #endif
 //*****************************************************************************************

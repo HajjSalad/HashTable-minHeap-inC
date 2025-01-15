@@ -71,6 +71,16 @@ bool hash_table_insert(word* w, int *pInserted_word_count) {
             }
         }
 
+        // Check table size and expand if necessary
+        if (table->length > (table->capacity/2)) {
+            if (hash_table_expand()) {
+                printf("\n\nTable expanded.\n\n");
+            } else {
+                printf("\nTable expansion unsuccessful.\n");
+                break;
+            }
+        }
+
         // != NULL - Available for use or Can be used
         if (hash_table[try_index] != NULL) {                // Not set to NULL during initialization 
             // If slot is empty, insert the word
