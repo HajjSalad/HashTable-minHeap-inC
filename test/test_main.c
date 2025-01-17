@@ -13,6 +13,7 @@ void test_hash();
 void test_init_hash_table();
 void test_hash_table_insert();
 void test_hash_table_lookup();
+void test_hash_table_expand();
 
 //*****************************************************************************
 
@@ -24,6 +25,7 @@ int main(){
     test_init_hash_table();
     test_hash_table_insert();
     test_hash_table_lookup();
+    test_hash_table_expand();
 
     printf("\nAll tests passed successfully.\n\n");
 

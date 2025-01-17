@@ -122,3 +122,36 @@ void test_hash_table_lookup() {
 
     free_hash_table(table);
 }
+
+void test_hash_table_expand() {
+    hashTable* table = init_hash_table();
+
+    // Insert elements to trigger expansion
+    for (size_t i=0; i<table->capacity; i++) {
+        word w;
+        snprintf(w.data, MAX_WORD, "word%zu", i);            // Create unique words
+        w.freq = 1;
+        hash_table_insert(table, &w);   
+    }
+
+    size_t old_capacity = table->capacity;         
+    bool expanded = hash_table_expand(table);               // Expand hash table
+    if (!expanded) {
+        fprintf(stderr, "Failed to expand hash table\n");
+    }
+    assert(expanded);
+    assert(table->capacity == old_capacity * 2);   // Check old capacity is doubled
+
+    // Verify priously inserted elements still in the table
+    for (size_t i=0; i<old_capacity; i++) {
+        char lookup_word[MAX_WORD];
+        snprintf(lookup_word, MAX_WORD, "word%zu", i);
+        word* found = hash_table_lookup(table, lookup_word);
+        assert(found != NULL);          // Ensure word exists
+        assert(strncmp(found->data, lookup_word, MAX_WORD) == 0);
+    }
+
+    printf("test_hash_table_expand passed.\n");
+
+    free_hash_table(table);
+}

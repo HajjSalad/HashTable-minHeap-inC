@@ -36,6 +36,7 @@ void free_hash_table(hashTable* table);
 void free_hash_table(hashTable* table);
 bool hash_table_insert(hashTable* table, word* w);
 void* hash_table_lookup(hashTable* table, char* lookWord);
+bool hash_table_expand(hashTable* table);
 
 #endif
 //*****************************************************************************************

@@ -61,18 +61,57 @@ void free_hash_table(hashTable* table) {
     }
 }
 
-/*
-// Expand hash table if more than filled
-bool hash_table_expand() {
-    in
-} */
+// Expand hash table if length more than half capacity
+bool hash_table_expand(hashTable* table) {
+    if (table == NULL) return false;
+
+    size_t old_capacity = table->capacity;
+    size_t new_capacity = old_capacity * 2;                      // Double the capacity
+
+    // Allocate new memory for the expanded table
+    word* new_entries = calloc(new_capacity, sizeof(word));
+    if (new_entries == NULL) {
+        fprintf(stderr, "Mem alloc failed during expansion");
+        return false;
+    }
+
+    // Rehash and copy existing entries to the new table
+    for (size_t i=0; i<old_capacity; i++) {
+        if (table->entries[i].data[0] != '\0') {              // Only rehash non-empty slots
+            size_t new_index = hash((unsigned char*)table->entries[i].data) % new_capacity;
+
+            while(new_entries[new_index].data[0] != '\0') {
+                new_index = (new_index + 1) % new_capacity;
+            }
+            strcpy(new_entries[new_index].data, table->entries[i].data);
+            new_entries[new_index].freq = table->entries[i].freq;
+        }
+    }
+
+    free(table->entries);           // Free the old entries
+    // Update the table
+    table->entries = new_entries;
+    table->capacity = new_capacity;
+
+    return true;
+} 
 
 // Return true if successful, false otherwise
-bool hash_table_insert(hashTable* table, word* w) {
+bool hash_table_insert(hashTable* table, char* w) {
     if (table == NULL || w == NULL) return false;                // Validate the input params
+
+    // Expand table if necessary
+    if (table->length > table->capacity/2) {
+        if(!hash_table_expand(table)){
+            printf("Hash table expansion failed.\n");
+            return false; 
+        } else {
+            printf("\nHash table expansion successful\n");
+        }
+    }
     
     // Get the index for the word
-    size_t index = hash((unsigned char *)w->data) % table->capacity;     
+    size_t index = hash((unsigned char *)w) % table->capacity;     
 
     // Handling collision and Check if already stored
     for (size_t i=0; i < table->capacity; i++) {
@@ -80,13 +119,13 @@ bool hash_table_insert(hashTable* table, word* w) {
 
         // If slot is empty, insert the word
         if (table->entries[try_index].data[0] == '\0') {
-            strcpy(table->entries[try_index].data, w->data);
+            strcpy(table->entries[try_index].data, w);
             table->entries[try_index].freq = 1;
             table->length++;                              // Increment the lenght of hash table
             return true;
         }
         // If slot contain same word, update frequency
-        if (strncmp(table->entries[try_index].data, w->data, MAX_WORD) == 0) {
+        if (strncmp(table->entries[try_index].data, w, MAX_WORD) == 0) {
             table->entries[try_index].freq += 1;          // increment the frequency
             return true;
         }
