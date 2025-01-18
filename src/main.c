@@ -5,6 +5,7 @@
 //*****************************************************************************
 
 #include "hash_table.h"
+#include "min_heap.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
