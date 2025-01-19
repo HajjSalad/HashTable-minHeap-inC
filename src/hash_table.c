@@ -105,8 +105,6 @@ bool hash_table_insert(hashTable* table, char* w) {
         if(!hash_table_expand(table)){
             printf("Hash table expansion failed.\n");
             return false; 
-        } else {
-            printf("\nHash table expansion successful\n");
         }
     }
     

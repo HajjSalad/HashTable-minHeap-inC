@@ -16,7 +16,7 @@
 //*****************************************************************************************
 
 typedef struct {        // Heap node structure
-    char data[256];         // pointer to the word
+    char data[MAX_WORD];     // pointer to the word
     size_t freq;        // freq of word
 } heap_node;
 

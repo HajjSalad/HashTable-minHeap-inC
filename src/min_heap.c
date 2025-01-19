@@ -43,19 +43,24 @@ min_heap* init_min_heap(size_t capacity) {
     return heap;
 }
 
-
 // Insert into min-heap
 void min_heap_insert(min_heap* heap, char* data, size_t freq) {
 
     // If heap size less than capacity
     if (heap->size < heap->capacity) {
-        heap->nodes[heap->size++] = (heap_node){.data = data, .freq = freq};
+        strcpy(heap->nodes[heap->size].data, data);
+        heap->nodes[heap->size].freq = freq;
+        heap->size++;
+        //heap->nodes[heap->size++] = (heap_node){.data = data, .freq = freq};
         // Sort the min heap
         qsort(heap->nodes, heap->size, sizeof(heap_node), heap_node_compare);
     } 
     // Replace root if current freq is greater
     else if (freq > heap->nodes[0].freq) {
-        heap->nodes[0] = (heap_node){.data = data, .freq = freq};
+        strcpy(heap->nodes[heap->size].data, data);
+        heap->nodes[heap->size].freq = freq;
+        heap->size++;
+        //heap->nodes[0] = (heap_node){.data = *data, .freq = freq};
         qsort(heap->nodes, heap->size, sizeof(heap_node), heap_node_compare);
     }
 } 
