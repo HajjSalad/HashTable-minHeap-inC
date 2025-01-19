@@ -57,9 +57,9 @@ void min_heap_insert(min_heap* heap, char* data, size_t freq) {
     } 
     // Replace root if current freq is greater
     else if (freq > heap->nodes[0].freq) {
-        strcpy(heap->nodes[heap->size].data, data);
-        heap->nodes[heap->size].freq = freq;
-        heap->size++;
+        strcpy(heap->nodes[0].data, data);
+        heap->nodes[0].freq = freq;
+        //heap->size++;
         //heap->nodes[0] = (heap_node){.data = *data, .freq = freq};
         qsort(heap->nodes, heap->size, sizeof(heap_node), heap_node_compare);
     }

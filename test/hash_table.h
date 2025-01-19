@@ -1,8 +1,8 @@
-//*****************************************************************************
+//*****************************************************************************************
 
 //  hash_table.h  -   Hash Table header file
 
-//*****************************************************************************
+//*****************************************************************************************
 
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
@@ -34,7 +34,7 @@ unsigned long hash(unsigned char *str);
 hashTable* init_hash_table();
 void free_hash_table(hashTable* table);
 void free_hash_table(hashTable* table);
-bool hash_table_insert(hashTable* table, word* w);
+bool hash_table_insert(hashTable* table, char* w);
 void* hash_table_lookup(hashTable* table, char* lookWord);
 bool hash_table_expand(hashTable* table);
 

@@ -16,7 +16,7 @@
 void print_head(hashTable* table);
 void word_lookup(hashTable* table, char* lookup);
 void clean_word(char *current_word);
-void find_n_most_frequent(hashTable* table, min_heap* heap, size_t n);
+void find_n_most_frequent(hashTable* table, min_heap* heap);
 
 //**********************************************************************************************
 
@@ -25,11 +25,12 @@ void print_head(hashTable* table) {
 
     size_t counter = 0;
     // Print the first 10 words and their frequency
-    printf("\tWord\t\tFreq\n");
+    printf("Head of the dataset:\n");
+    printf("\tFreq   Word\n");
     for (size_t i=0; i<table->capacity; i++) {
         if (table->entries[i].data[0] != '\0') {
             // Print word and frequency
-            printf("\t%s\t\t%zu\n", table->entries[i].data, table->entries[i].freq);
+            printf("\t %zu     %s\n", table->entries[i].freq, table->entries[i].data);
             counter++;
             if (counter == 10) {        // Stop after 10 entries
                 break;
@@ -39,7 +40,7 @@ void print_head(hashTable* table) {
 }
 
 // Task 2: Find the n most frequent words in the dataset
-void find_n_most_frequent(hashTable* table, min_heap* heap,  size_t n) {
+void find_n_most_frequent(hashTable* table, min_heap* heap) {
 
     for (size_t i=0; i<table->capacity; i++) {
         if (table->entries[i].data[0] != '\0') {
@@ -48,9 +49,9 @@ void find_n_most_frequent(hashTable* table, min_heap* heap,  size_t n) {
     }
 
     // Print the n words
-    printf("\tWord\t\t\tFreq\n");
-    for (size_t i=0; i<n; i++) {
-        printf("\t%s\t\t\t%zu\n", heap->nodes[i].data, heap->nodes[i].freq);
+    printf("\tFreq   Word\n");
+    for (int i=heap->size-1; i>=0; i--) {
+        printf("\t %zu     %s\n", heap->nodes[i].freq, heap->nodes[i].data);
     }
 }
 
@@ -59,11 +60,13 @@ void word_lookup(hashTable* table, char* lookup) {
 
     // Look up in the hash table
     word* foundWord = hash_table_lookup(table, lookup);
-
+    
     if (foundWord == NULL) {            // if empty
-        printf("Word not found!\n");
+        printf("\nWord not found!\n");
     } else {
-        printf("Word found: %s freq:%zu\n", foundWord->data, foundWord->freq);
+        printf("Word found!\n");
+        printf("\tFreq   Word\n");
+        printf("\t %zu     %s\n", foundWord->freq, foundWord->data);
     }
 }
 
@@ -72,8 +75,8 @@ void clean_word(char *current_word) {
     char *src = current_word, *dst = current_word;
 
     while(*src) {
-        if(isalnum((unsigned char)*src)) {      // Copy only alphanumeric characters
-            *dst++ = *src;
+        if(isalnum((unsigned char)*src)) {              // Copy only alphanumeric characters
+            *dst++ = tolower((unsigned char)*src);      // Convert to lower case as well
         }
         src++;
     }
@@ -84,8 +87,7 @@ void clean_word(char *current_word) {
 
 int main() {
 
-    size_t n;
-    char path[] = "src/test.txt";            
+    char path[] = "src/shakespeare.txt";            
     FILE *fp = NULL;
     char current_word[MAX_WORD];                        // Buffer to store the word
 
@@ -126,7 +128,7 @@ int main() {
             printf("Enter the n: ");
             scanf("%zu", &n);
             min_heap* heap = init_min_heap(n);
-            find_n_most_frequent(table, heap, n);
+            find_n_most_frequent(table, heap);
             free(heap);
         } else if (select == 3) {           // Task 3
             printf("Enter the word you'd like to look up: ");

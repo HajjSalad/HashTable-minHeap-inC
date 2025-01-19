@@ -70,24 +70,27 @@ void test_init_hash_table() {
 
 
 void test_hash_table_insert() {
-    word text1 = { .data = "hello", .freq = 0 };
+    char* text1 = "hello";
+    //word text1 = { .data = "hello", .freq = 0 };
     hashTable* table = init_hash_table();
 
-    assert(hash_table_insert(table, &text1));                                          // Insert the word
-    size_t index1 = hash((unsigned char *)text1.data) % table->capacity;
-    assert(strncmp(table->entries[index1].data, text1.data, MAX_WORD) == 0);       // Check word is stored
+    assert(hash_table_insert(table, text1));                                          // Insert the word
+    size_t index1 = hash((unsigned char *)text1) % table->capacity;
+    assert(strncmp(table->entries[index1].data, text1, MAX_WORD) == 0);       // Check word is stored
     assert(table->entries[index1].freq == 1);                                      // Check freq set to 1
 
-    word text2 = { .data = "hello", .freq = 0 };                                // text1 = text2
-    assert(hash_table_insert(table, &text2));
+    char* text2 = "hello";
+    //word text2 = { .data = "hello", .freq = 0 };                                // text1 = text2
+    assert(hash_table_insert(table, text2));
     assert(table->entries[index1].freq == 2);                                      // freq incremented to 2
 
-    word text3 = { .data = "world", .freq = 0 };
+    char* text3 = "world";
+    //word text3 = { .data = "world", .freq = 0 };
 
-    assert(hash_table_insert(table, &text3));                                          // Insert the word
-    size_t index3 = hash((unsigned char *)text3.data) % table->capacity;
+    assert(hash_table_insert(table, text3));                                          // Insert the word
+    size_t index3 = hash((unsigned char *)text3) % table->capacity;
     assert(index3 != index1);                                                   // Ensure its a different slot
-    assert(strncmp(table->entries[index3].data, text3.data, MAX_WORD) == 0);       // Check word is stored
+    assert(strncmp(table->entries[index3].data, text3, MAX_WORD) == 0);       // Check word is stored
 
     printf("test_hash_table_insert passed\n");
 
@@ -95,24 +98,27 @@ void test_hash_table_insert() {
 }
 
 void test_hash_table_lookup() {
-    word text1 = { .data = "hello", .freq = 0 };                     // Initialize test words
-    word text2 = { .data = "world", .freq = 0 };
-    word text3 = { .data = "dragon", .freq = 0 };
+    //word text1 = { .data = "hello", .freq = 0 };                     // Initialize test words
+    //word text2 = { .data = "world", .freq = 0 };
+    //word text3 = { .data = "dragon", .freq = 0 };
+    char* text1 = "hello"; 
+    char* text2 = "world"; 
+    char* text3 = "dragon"; 
 
     hashTable* table = init_hash_table();
-    hash_table_insert(table, &text1);                                // Insert the words
-    hash_table_insert(table, &text2);
-    hash_table_insert(table, &text3);
+    hash_table_insert(table, text1);                                // Insert the words
+    hash_table_insert(table, text2);
+    hash_table_insert(table, text3);
 
     char str1[] = "hello";
     word* foundWord1 = hash_table_lookup(table, str1);                      // lookup the words
     assert(foundWord1 != NULL);
-    assert(strncmp(foundWord1->data, text1.data, MAX_WORD) == 0);     
+    assert(strncmp(foundWord1->data, text1, MAX_WORD) == 0);     
     
     char str2[] = "world";
     word* foundWord2 = hash_table_lookup(table, str2);
     assert(foundWord2 != NULL);
-    assert(strncmp(foundWord2->data, text2.data, MAX_WORD) == 0);     // verify the data
+    assert(strncmp(foundWord2->data, text2, MAX_WORD) == 0);     // verify the data
 
     char str3[] = "unknown";                                          // Lookup word not in table
     word* foundWord3 = hash_table_lookup(table, str3);
@@ -126,14 +132,13 @@ void test_hash_table_lookup() {
 void test_hash_table_expand() {
     hashTable* table = init_hash_table();
 
-    // Insert elements to trigger expansion
-    for (size_t i=0; i<table->capacity; i++) {
-        word w;
-        snprintf(w.data, MAX_WORD, "word%zu", i);            // Create unique words
-        w.freq = 1;
-        hash_table_insert(table, &w);   
+    // Insert elements - INITIAL_CAPACITY = 10
+    for (size_t i=0; i<10; i++) {
+        char word[MAX_WORD];
+        snprintf(word, MAX_WORD, "word%zu", i);            // Create unique words
+        hash_table_insert(table, word);   
     }
-
+    
     size_t old_capacity = table->capacity;         
     bool expanded = hash_table_expand(table);               // Expand hash table
     if (!expanded) {
@@ -142,16 +147,15 @@ void test_hash_table_expand() {
     assert(expanded);
     assert(table->capacity == old_capacity * 2);   // Check old capacity is doubled
 
-    // Verify priously inserted elements still in the table
-    for (size_t i=0; i<old_capacity; i++) {
+    for (size_t i=0; i<10; i++) {
         char lookup_word[MAX_WORD];
         snprintf(lookup_word, MAX_WORD, "word%zu", i);
         word* found = hash_table_lookup(table, lookup_word);
-        assert(found != NULL);          // Ensure word exists
+        assert(found != NULL);
         assert(strncmp(found->data, lookup_word, MAX_WORD) == 0);
     }
 
     printf("test_hash_table_expand passed.\n");
 
     free_hash_table(table);
-}
+} 
