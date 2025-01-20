@@ -15,4 +15,4 @@ A C-based project designed to analyze textual datasets for frequency patterns. T
 - `make clean` clean generated files
 
 #### Demo
-View demo in action. [!Word Frequency Demo](./hash_demo.gif)
+View demo in action. ![Word Frequency Demo](./hash_demo.gif)
